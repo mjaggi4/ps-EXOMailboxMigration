@@ -4,6 +4,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté – étape 6 : import PST
+
+- `Import-EESPstToMailbox -Method NetworkUpload` (défaut) : contrôle des PST (noms uniques, taille), URL SAS du portail Purview (saisie masquée, jamais journalisée, validée), AzCopy téléchargé à la demande (signature Microsoft vérifiée), téléversement dans un sous-dossier daté, fichier de mappage CSV au format exact Purview (500 lignes max par fichier), étapes restantes affichées. Options `-TargetRootFolder`, `-IsArchive`, `-MappingOnly`, `-WhatIf`.
+- `-Method AzurePstImport` : détection de disponibilité et message clair (fonctionnalité annoncée, MC1455013, cmdlets non documentées publiquement) ; aucun nom de cmdlet supposé.
+
 ### Ajouté – étape 5 : export PST
 
 - `Export-EESMailboxToPst -Method EDiscovery` (défaut) : API Microsoft Purview eDiscovery en mode délégué (compatible Business Premium / E3, abonnement pay-as-you-go requis par Microsoft) : dossier, recherche limitée à la boîte, estimation, export PST, téléchargement avec reprise (`Range`), extraction ZIP.

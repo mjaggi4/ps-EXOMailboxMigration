@@ -28,6 +28,7 @@
         'Get-EESMigrationStatus'
         'Export-EESMigrationReport'
         'Export-EESMailboxToPst'
+        'Import-EESPstToMailbox'
     )
     CmdletsToExport      = @()
     VariablesToExport    = @()
