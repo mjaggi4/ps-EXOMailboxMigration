@@ -25,6 +25,8 @@
         'Start-EESBatchMigration'
         'Test-EESMigrationReadiness'
         'New-EESBatchTemplate'
+        'Get-EESMigrationStatus'
+        'Export-EESMigrationReport'
     )
     CmdletsToExport      = @()
     VariablesToExport    = @()

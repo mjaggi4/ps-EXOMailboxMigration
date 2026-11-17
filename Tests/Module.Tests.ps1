@@ -52,7 +52,7 @@ Describe 'Aide des commandes publiques' {
 }
 
 Describe 'Prise en charge de -WhatIf' {
-    It '<_> supporte -WhatIf et -Confirm' -ForEach @('Connect-EESTenant', 'Disconnect-EESTenant', 'Remove-EESTenantApp', 'Start-EESMailboxMigration', 'Start-EESBatchMigration', 'New-EESBatchTemplate') {
+    It '<_> supporte -WhatIf et -Confirm' -ForEach @('Connect-EESTenant', 'Disconnect-EESTenant', 'Remove-EESTenantApp', 'Start-EESMailboxMigration', 'Start-EESBatchMigration', 'New-EESBatchTemplate', 'Export-EESMigrationReport') {
         $command = Get-Command -Name $_
         $command.Parameters.Keys | Should -Contain 'WhatIf'
         $command.Parameters.Keys | Should -Contain 'Confirm'

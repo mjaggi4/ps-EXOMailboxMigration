@@ -4,6 +4,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté – étape 4 : rapports
+
+- `Get-EESMigrationStatus` : état de chaque paire de boîtes (terminée, en cours/interrompue, échec), éléments migrés (cumul), éléments en échec, dernière passe ; utilisable pendant une migration, sans connexion.
+- `Export-EESMigrationReport` : rapport HTML autonome (synthèse, boîtes, détail par dossier, éléments en échec ; thème clair/sombre) et CSV `;` UTF-8 avec BOM (boîtes, dossiers, échecs).
+
 ### Ajouté – étape 3 : lot, parallélisme et pré-vérifications
 
 - `Start-EESBatchMigration` : migration en parallèle (`ForEach-Object -Parallel`, `-ThrottleLimit` 4 par défaut) depuis un CSV ; reconnexion non interactive par certificat dans chaque runspace ; log commun ; récapitulatif `Reports/Lot_*.json`.

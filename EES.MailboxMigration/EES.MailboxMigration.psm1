@@ -51,7 +51,9 @@ foreach ($folder in @('Private', 'Public')) {
 $displaySets = @{
     'EES.MigrationResult' = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'Copied', 'Updated', 'Skipped', 'Failed', 'Duration')
     'EES.FolderPlan'      = @('SourcePath', 'TargetPath', 'Items', 'Status')
-    'EES.ReadinessResult' = @('SourceMailbox', 'TargetMailbox', 'Status', 'SourceSizeGB', 'SourceItemCount', 'TargetFreeGB', 'EstimatedDuration', 'Issues')
+    'EES.MigrationStatus'         = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'ItemsMigrated', 'PendingFailures', 'LastRunStart', 'LastRunEnd', 'Runs')
+    'EES.MigrationStatusDetailed' = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'ItemsMigrated', 'PendingFailures', 'LastRunStart', 'LastRunEnd', 'LastRunMode', 'LastRunCopied', 'LastRunFailed', 'LastRunDuration', 'LastRunMB', 'ThroughputMBPerHour', 'FolderCount', 'Folders', 'Failures', 'StatePath')
+    'EES.ReadinessResult' =@('SourceMailbox', 'TargetMailbox', 'Status', 'SourceSizeGB', 'SourceItemCount', 'TargetFreeGB', 'EstimatedDuration', 'Issues')
 }
 foreach ($typeName in $displaySets.Keys) {
     Update-TypeData -TypeName $typeName -DefaultDisplayPropertySet $displaySets[$typeName] -Force
