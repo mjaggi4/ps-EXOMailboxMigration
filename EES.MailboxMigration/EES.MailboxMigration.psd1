@@ -22,6 +22,9 @@
         'Get-EESConnectionStatus'
         'Remove-EESTenantApp'
         'Start-EESMailboxMigration'
+        'Start-EESBatchMigration'
+        'Test-EESMigrationReadiness'
+        'New-EESBatchTemplate'
     )
     CmdletsToExport      = @()
     VariablesToExport    = @()

@@ -146,6 +146,15 @@ Describe 'État de migration (reprise)' {
         }
     }
 
+    It 'sépare l''état par dossier racine d''import (test puis vraie migration)' {
+        InModuleScope EES.MailboxMigration {
+            $main = Get-EESStatePath -SourceIdentity 'a@s.com' -TargetIdentity 'b@t.com'
+            $test = Get-EESStatePath -SourceIdentity 'a@s.com' -TargetIdentity 'b@t.com' -TargetRootFolder '/Migration-Test/'
+            $test | Should -Not -Be $main
+            $test | Should -BeLike '*__root-migration-test'
+        }
+    }
+
     It 'produit un nom de dossier d''état valide' {
         InModuleScope EES.MailboxMigration {
             ConvertTo-EESSafeFileName -Name 'Jean Dupont:<x>@Contoso.com' | Should -Be 'jean_dupont__x_@contoso.com'

@@ -22,6 +22,11 @@ $script:EESConstants = [ordered]@{
     PermissionWaitTimeoutSec   = 300
 }
 
+# Dossier du module (modèles, chargement dans les traitements parallèles).
+$script:EESModuleRoot = $PSScriptRoot
+# Rapports d'utilisation des boîtes en cache, par rôle.
+$script:EESUsageReports = @{}
+
 # Connexions actives par rôle (Source / Target) : contextes séparés, jamais globaux.
 $script:EESConnections = @{}
 # Clients MSAL publics (connexion administrateur) par tenant.
@@ -46,6 +51,7 @@ foreach ($folder in @('Private', 'Public')) {
 $displaySets = @{
     'EES.MigrationResult' = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'Copied', 'Updated', 'Skipped', 'Failed', 'Duration')
     'EES.FolderPlan'      = @('SourcePath', 'TargetPath', 'Items', 'Status')
+    'EES.ReadinessResult' = @('SourceMailbox', 'TargetMailbox', 'Status', 'SourceSizeGB', 'SourceItemCount', 'TargetFreeGB', 'EstimatedDuration')
 }
 foreach ($typeName in $displaySets.Keys) {
     Update-TypeData -TypeName $typeName -DefaultDisplayPropertySet $displaySets[$typeName] -Force

@@ -1,0 +1,3 @@
+SourceMailbox;TargetMailbox;IncludeArchive;TargetRootFolder;StartDate;EndDate;ExcludeFolders
+jdupont@contoso.com;jean.dupont@fabrikam.com;true;;;;
+mmartin@contoso.com;marie.martin@fabrikam.com;false;;2020-01-01;;deleteditems|junkemail

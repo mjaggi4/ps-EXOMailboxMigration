@@ -48,6 +48,11 @@ Start-EESMailboxMigration jdupont@contoso.com jean.dupont@fabrikam.com -WhatIf
 Start-EESMailboxMigration jdupont@contoso.com jean.dupont@fabrikam.com
 Start-EESMailboxMigration jdupont@contoso.com jean.dupont@fabrikam.com -Incremental
 
+# Migration en lot
+New-EESBatchTemplate -Path .\lot1.csv          # à compléter dans Excel
+Test-EESMigrationReadiness -CsvPath .\lot1.csv
+Start-EESBatchMigration -CsvPath .\lot1.csv -ThrottleLimit 4
+
 # En fin de projet
 Remove-EESTenantApp -Role Source
 Remove-EESTenantApp -Role Target
@@ -57,8 +62,8 @@ Remove-EESTenantApp -Role Target
 
 | Tenant | Permissions Microsoft Graph (application) |
 |---|---|
-| Source | `User.Read.All`, `Organization.Read.All`, `MailboxFolder.Read.All`, `MailboxItem.Read.All`, `MailboxItem.Export.All` |
-| Cible | `User.Read.All`, `Organization.Read.All`, `MailboxFolder.ReadWrite.All`, `MailboxItem.Read.All`, `MailboxItem.ImportExport.All` |
+| Source | `User.Read.All`, `Organization.Read.All`, `Reports.Read.All`, `MailboxFolder.Read.All`, `MailboxItem.Read.All`, `MailboxItem.Export.All` |
+| Cible | `User.Read.All`, `Organization.Read.All`, `Reports.Read.All`, `MailboxFolder.ReadWrite.All`, `MailboxItem.Read.All`, `MailboxItem.ImportExport.All` |
 
 ## Fichiers créés sur le poste
 

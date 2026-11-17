@@ -66,6 +66,10 @@
     .PARAMETER ImportConcurrency
         Nombre d'imports simultanés dans la boîte cible (1 à 4, défaut 4 : limite Microsoft par boîte).
 
+    .PARAMETER ProgressId
+        Identifiant de la barre de progression (utilisé par Start-EESBatchMigration pour afficher
+        plusieurs boîtes en parallèle). Défaut : 1.
+
     .EXAMPLE
         Start-EESMailboxMigration -SourceMailbox jdupont@contoso.com -TargetMailbox jean.dupont@fabrikam.com
 
@@ -129,7 +133,10 @@
         [int]$BadItemLimit = -1,
 
         [ValidateRange(1, 4)]
-        [int]$ImportConcurrency = 4
+        [int]$ImportConcurrency = 4,
+
+        [ValidateRange(1, 100000)]
+        [int]$ProgressId = 1
     )
 
     if ($Incremental -and $Rescan) {
@@ -138,12 +145,7 @@
     if ($PSBoundParameters.ContainsKey('StartDate') -and $PSBoundParameters.ContainsKey('EndDate') -and $StartDate -ge $EndDate) {
         throw '-StartDate doit être antérieure à -EndDate.'
     }
-    foreach ($role in @('Source', 'Target')) {
-        $connection = $script:EESConnections[$role]
-        if (-not $connection -or -not $connection.ConfidentialClient) {
-            throw "Le tenant $role n'est pas connecté. Lancez d'abord : Connect-EESTenant -Role $role"
-        }
-    }
+    Assert-EESConnection -Role Source, Target
 
     # --- Résolution des boîtes ---------------------------------------------------------------------
     $pairs = [System.Collections.Generic.List[object]]::new()
@@ -191,7 +193,7 @@
     }
 
     # --- Migration --------------------------------------------------------------------------------
-    $progressId = 1
+    $progressCounter = $ProgressId
     foreach ($pair in $pairs) {
         if (-not $pair.Source) {
             [pscustomobject]@{
@@ -215,7 +217,7 @@
             Rescan            = $Rescan
             BadItemLimit      = $BadItemLimit
             ImportConcurrency = $ImportConcurrency
-            ProgressId        = $progressId++
+            ProgressId        = $progressCounter++
         }
         if ($PSBoundParameters.ContainsKey('StartDate')) {
             $syncParams.StartDate = $StartDate

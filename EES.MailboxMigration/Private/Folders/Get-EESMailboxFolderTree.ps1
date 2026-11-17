@@ -26,8 +26,16 @@
     $graph = @{ Role = $Role; ApiVersion = $Mailbox.ApiVersion; All = $true }
 
     $folders = [ordered]@{}
-    foreach ($folder in @(Invoke-EESGraphRequest @graph -Uri "$base`?$select")) {
+    # Nombre d'enfants déjà connus par parent (évite un parcours quadratique sur les grosses boîtes).
+    $childCount = @{}
+    $register = {
+        param($folder)
         $folders[[string]$folder.id] = $folder
+        $parent = [string]$folder.parentFolderId
+        $childCount[$parent] = [int]$childCount[$parent] + 1
+    }
+    foreach ($folder in @(Invoke-EESGraphRequest @graph -Uri "$base`?$select")) {
+        & $register $folder
     }
 
     $queue = [System.Collections.Generic.Queue[object]]::new()
@@ -39,14 +47,13 @@
         if ([int]$folder.childFolderCount -le 0) {
             continue
         }
-        $knownChildren = @($folders.Values | Where-Object { $_.parentFolderId -eq $folder.id }).Count
-        if ($knownChildren -ge [int]$folder.childFolderCount) {
+        if ([int]$childCount[[string]$folder.id] -ge [int]$folder.childFolderCount) {
             continue
         }
         $children = @(Invoke-EESGraphRequest @graph -Uri "$base/$($folder.id)/childFolders?$select")
         foreach ($child in $children) {
             if (-not $folders.Contains([string]$child.id)) {
-                $folders[[string]$child.id] = $child
+                & $register $child
                 $queue.Enqueue($child)
             }
         }

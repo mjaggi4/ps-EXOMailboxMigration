@@ -79,7 +79,7 @@
     $label = '{0} → {1}{2}' -f $SourceMailbox.Identity, $TargetMailbox.Identity, $(if ($isArchive) { ' (archive)' } else { '' })
     $context = $SourceMailbox.Identity
 
-    $statePath = Get-EESStatePath -SourceIdentity $SourceMailbox.Identity -TargetIdentity $TargetMailbox.Identity -Archive:$isArchive
+    $statePath = Get-EESStatePath -SourceIdentity $SourceMailbox.Identity -TargetIdentity $TargetMailbox.Identity -Archive:$isArchive -TargetRootFolder $TargetRootFolder
     $state = Read-EESMigrationState -Path $statePath
     if ($Incremental -and -not $state.Meta.HasCompletedRun) {
         throw "Mode incrémental impossible pour $label : aucune passe complète n'a encore été réalisée. Lancez d'abord une migration sans -Incremental."

@@ -118,20 +118,7 @@
         $certificate = Get-EESStoredCertificate -Thumbprint $config.CertificateThumbprint
         $renewalLimit = (Get-Date).AddDays($constants.CertificateRenewalDays)
         if ($certificate -and $certificate.NotAfter -gt $renewalLimit) {
-            $script:EESConnections[$Role] = [pscustomobject]@{
-                Role                  = $Role
-                TenantId              = $config.TenantId
-                TenantName            = $config.TenantName
-                DefaultDomain         = $config.DefaultDomain
-                AppId                 = $config.AppId
-                CertificateThumbprint = $certificate.Thumbprint
-                CertificateNotAfter   = $certificate.NotAfter
-                ConfidentialClient    = (Get-EESConfidentialClient -TenantId $config.TenantId -AppId $config.AppId -Certificate $certificate)
-                AdminAccount          = $null
-                AdminUpn              = $null
-                AdminScopes           = $null
-                ConnectedAt           = Get-Date
-            }
+            $null = Restore-EESAppConnection -Role $Role -Config $config
             try {
                 $permissions = Test-EESAppPermission -Role $Role
                 if ($permissions.IsComplete) {

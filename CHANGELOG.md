@@ -4,6 +4,19 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté – étape 3 : lot, parallélisme et pré-vérifications
+
+- `Start-EESBatchMigration` : migration en parallèle (`ForEach-Object -Parallel`, `-ThrottleLimit` 4 par défaut) depuis un CSV ; reconnexion non interactive par certificat dans chaque runspace ; log commun ; récapitulatif `Reports/Lot_*.json`.
+- Validation du CSV avant lancement : séparateur `;` ou `,` détecté, UTF-8 avec ou sans BOM, colonnes, adresses, booléens (true/oui/1…), dates (2025-01-31 ou 31/01/2025), doublons de source (erreur) et de cible (avertissement), existence des boîtes.
+- `New-EESBatchTemplate` : modèle CSV (UTF-8 avec BOM, séparateur `;`).
+- `Test-EESMigrationReadiness` : permissions, boîtes, licence Exchange de la cible, volume, nombre d'éléments, quota libre, archives, détail par dossier (`-Detailed`), durée estimée.
+- Nouvelle permission applicative `Reports.Read.All` (rapport d'utilisation des boîtes) : consentement redemandé au prochain `Connect-EESTenant`.
+
+### Modifié
+
+- Lecture de l'arborescence des dossiers en temps linéaire (boîtes de plusieurs milliers de dossiers).
+- L'état de reprise est distinct pour chaque `-TargetRootFolder`.
+
 ### Ajouté – étape 2 : migration unitaire
 
 - `Start-EESMailboxMigration` : copie inter-tenant boîte → boîte existante via les API Microsoft Graph mailbox import/export (flux FastTransfer opaque, jamais analysé).
