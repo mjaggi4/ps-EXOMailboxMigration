@@ -20,6 +20,10 @@ $script:EESConstants = [ordered]@{
     CertificateValidityMonths  = 12
     CertificateRenewalDays     = 30
     PermissionWaitTimeoutSec   = 300
+    # Budget d'envoi par boîte cible sur 5 minutes (limite Microsoft : 150 Mo, marge de sécurité).
+    UploadBudgetBytes          = 140MB
+    # Débit d'import estimé par boîte (140 Mo / 5 min de flux base64 ≈ 1,2 Go/h de données).
+    EstimatedGBPerHour         = 1.2
 }
 
 # Dossier du module (modèles, chargement dans les traitements parallèles).

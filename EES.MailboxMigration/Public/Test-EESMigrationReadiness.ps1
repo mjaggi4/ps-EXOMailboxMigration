@@ -11,8 +11,8 @@
           - volume et nombre d'éléments de la source, espace libre (quota) de la cible ;
           - boîtes d'archive (si demandées) ;
           - avec -Detailed : nombre d'éléments par dossier de la source.
-        Une estimation de durée est calculée sur la base d'environ 1,5 Go/h par boîte (Microsoft limite
-        l'import à 150 Mo par tranche de 5 minutes et par boîte).
+        Une estimation de durée est calculée sur la base d'environ 1,2 Go/h par boîte (Microsoft limite
+        les envois à 150 Mo par tranche de 5 minutes et par boîte, flux encodé en base64).
 
         Volumes et quotas proviennent du rapport Microsoft 365 « utilisation des boîtes aux lettres »
         (décalage de 24 à 48 h). Si le tenant masque les noms d'utilisateur dans les rapports, ces

@@ -208,7 +208,7 @@ Describe 'Test-EESMailboxPairReadiness' {
         $result.SourceSizeGB | Should -Be 30
         $result.SourceItemCount | Should -Be 15528
         $result.TargetFreeGB | Should -Be 49
-        $result.EstimatedDuration.TotalHours | Should -Be 20
+        $result.EstimatedDuration.TotalHours | Should -Be 25
         $result.Ready | Should -BeTrue
         $result.Status | Should -Be 'Prêt avec avertissements'
         ($result.Checks | Where-Object Check -EQ 'Archive source').Status | Should -Be 'Avertissement'

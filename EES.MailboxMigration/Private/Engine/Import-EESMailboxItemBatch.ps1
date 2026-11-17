@@ -45,7 +45,8 @@
     foreach ($e in $Entry) {
         $queue.Enqueue([pscustomobject]@{
                 Entry          = $e
-                Attempt        = 0
+                Attempt          = 0
+                ThrottleAttempts = 0
                 MailboxId      = if ($e.PSObject.Properties['TargetMailboxId'] -and $e.TargetMailboxId) { $e.TargetMailboxId } else { $Mailbox.MailboxId }
                 ForceSession   = $false
                 SessionRenewed = $false
@@ -62,21 +63,54 @@
         }
     }
 
-    while ($queue.Count -gt 0 -or $inflight.Count -gt 0) {
-        # Démarrage de nouvelles requêtes dans la limite de concurrence.
-        while ($inflight.Count -lt $Concurrency -and $queue.Count -gt 0 -and (Get-Date) -ge $pauseUntil) {
-            $work = $queue.Dequeue()
+    # Fenêtres glissantes des octets envoyés, par boîte (limite Microsoft : 150 Mo / 5 min).
+    if (-not $script:EESUploadWindows) {
+        $script:EESUploadWindows = @{}
+    }
+    $pending = $null
+
+    while ($queue.Count -gt 0 -or $inflight.Count -gt 0 -or $pending) {
+        # Démarrage de nouvelles requêtes dans la limite de concurrence et de débit.
+        while ($inflight.Count -lt $Concurrency -and ($pending -or $queue.Count -gt 0) -and (Get-Date) -ge $pauseUntil) {
+            if (-not $pending) {
+                $work = $queue.Dequeue()
+                try {
+                    $body = ConvertTo-EESImportBody -FolderId $work.Entry.FolderId -Data $work.Entry.Data -TargetItemId $work.Entry.TargetItemId -TargetChangeKey $work.Entry.TargetChangeKey
+                }
+                catch {
+                    & $fail $work $_.Exception.Message
+                    continue
+                }
+                $pending = [pscustomobject]@{ Work = $work; Body = $body }
+            }
+
+            $window = $script:EESUploadWindows[$pending.Work.MailboxId]
+            if (-not $window) {
+                $window = [System.Collections.Generic.List[object]]::new()
+                $script:EESUploadWindows[$pending.Work.MailboxId] = $window
+            }
+            $bytes = [long]$pending.Body.Length
+            $delay = Get-EESUploadDelay -Window $window -Bytes $bytes -BudgetBytes $script:EESConstants.UploadBudgetBytes
+            if ($delay -gt 0) {
+                $pauseUntil = (Get-Date).AddSeconds($delay)
+                Write-EESLog -Level DEBUG -Message ("Import : régulation du débit (150 Mo / 5 min par boîte), pause de {0:N0} s." -f $delay) -Context $Mailbox.Identity
+                break
+            }
+
+            $work = $pending.Work
             try {
                 $session = Get-EESImportSession -Mailbox $Mailbox -MailboxId $work.MailboxId -Force:$work.ForceSession
                 $work.ForceSession = $false
-                $body = ConvertTo-EESImportBody -FolderId $work.Entry.FolderId -Data $work.Entry.Data -TargetItemId $work.Entry.TargetItemId -TargetChangeKey $work.Entry.TargetChangeKey
             }
             catch {
                 & $fail $work $_.Exception.Message
+                $pending = $null
                 continue
             }
-            $content = [System.Net.Http.StringContent]::new($body, [System.Text.Encoding]::UTF8, 'application/json')
-            $inflight.Add([pscustomobject]@{ Work = $work; Task = $client.PostAsync($session.ImportUrl, $content); Content = $content })
+            $window.Add([pscustomobject]@{ Time = Get-Date; Bytes = $bytes })
+            $content = [System.Net.Http.StringContent]::new($pending.Body, [System.Text.Encoding]::UTF8, 'application/json')
+            $inflight.Add([pscustomobject]@{ Work = $work; Task =$client.PostAsync($session.ImportUrl, $content); Content = $content })
+            $pending = $null
         }
 
         if ($inflight.Count -eq 0) {
@@ -151,6 +185,19 @@
         }
         else {
             "HTTP $status"
+        }
+
+        # Limitation de débit Microsoft (429) : pause d'au moins 60 s, sans compter comme un échec.
+        if ($status -eq 429 -and $work.ThrottleAttempts -lt 60) {
+            $work.ThrottleAttempts++
+            $delay = [math]::Max(60, (Get-EESRetryDelay -Attempt 1 -RetryAfter $retryAfter))
+            $candidate = (Get-Date).AddSeconds($delay)
+            if ($candidate -gt $pauseUntil) {
+                $pauseUntil = $candidate
+            }
+            Write-EESLog -Level DEBUG -Message ("Import : limitation Microsoft ({0}), pause de {1:N0} s." -f $message, $delay) -Context $Mailbox.Identity
+            $queue.Enqueue($work)
+            continue
         }
 
         if (($status -eq 0 -or (Test-EESRetryableStatusCode -StatusCode $status)) -and $work.Attempt -lt $MaxRetries) {

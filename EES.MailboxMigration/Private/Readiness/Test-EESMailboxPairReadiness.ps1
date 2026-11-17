@@ -44,7 +44,7 @@
 
         [object[]]$CommonCheck = @(),
 
-        [double]$ThroughputGBPerHour = 1.5
+        [double]$ThroughputGBPerHour = $script:EESConstants.EstimatedGBPerHour
     )
 
     $checks = [System.Collections.Generic.List[object]]::new()

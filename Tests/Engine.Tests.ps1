@@ -94,6 +94,50 @@ Describe 'ConvertTo-EESImportBody' {
     }
 }
 
+Describe 'Get-EESUploadDelay (limite 150 Mo / 5 min)' {
+    It 'autorise un envoi sous le budget' {
+        InModuleScope EES.MailboxMigration {
+            $now = [datetime]'2026-11-17T10:00:00'
+            $window = [System.Collections.Generic.List[object]]::new()
+            $window.Add([pscustomobject]@{ Time = $now.AddSeconds(-10); Bytes = 100MB })
+            Get-EESUploadDelay -Window $window -Bytes 30MB -BudgetBytes 140MB -Now $now | Should -Be 0
+        }
+    }
+
+    It 'fait attendre la sortie des envois les plus anciens' {
+        InModuleScope EES.MailboxMigration {
+            $now = [datetime]'2026-11-17T10:00:00'
+            $window = [System.Collections.Generic.List[object]]::new()
+            $window.Add([pscustomobject]@{ Time = $now.AddSeconds(-200); Bytes = 60MB })
+            $window.Add([pscustomobject]@{ Time = $now.AddSeconds(-100); Bytes = 70MB })
+            # 130 + 20 > 140 : il faut libérer 10 Mo -> sortie du premier envoi dans 100 s (+1).
+            Get-EESUploadDelay -Window $window -Bytes 20MB -BudgetBytes 140MB -Now $now | Should -Be 101
+        }
+    }
+
+    It 'élague les envois sortis de la fenêtre' {
+        InModuleScope EES.MailboxMigration {
+            $now = [datetime]'2026-11-17T10:00:00'
+            $window = [System.Collections.Generic.List[object]]::new()
+            $window.Add([pscustomobject]@{ Time = $now.AddSeconds(-301); Bytes = 140MB })
+            Get-EESUploadDelay -Window $window -Bytes 50MB -BudgetBytes 140MB -Now $now | Should -Be 0
+            $window.Count | Should -Be 0
+        }
+    }
+
+    It 'autorise un élément plus gros que le budget quand la fenêtre est vide, sinon attend qu''elle se vide' {
+        InModuleScope EES.MailboxMigration {
+            $now = [datetime]'2026-11-17T10:00:00'
+            $empty = [System.Collections.Generic.List[object]]::new()
+            Get-EESUploadDelay -Window $empty -Bytes 200MB -BudgetBytes 140MB -Now $now | Should -Be 0
+
+            $window = [System.Collections.Generic.List[object]]::new()
+            $window.Add([pscustomobject]@{ Time = $now.AddSeconds(-60); Bytes = 1MB })
+            Get-EESUploadDelay -Window $window -Bytes 200MB -BudgetBytes 140MB -Now $now | Should -Be 241
+        }
+    }
+}
+
 Describe 'Get-EESRedirectMailboxId' {
     It 'extrait la boîte indiquée par une erreur 409 d''archive' {
         InModuleScope EES.MailboxMigration {
