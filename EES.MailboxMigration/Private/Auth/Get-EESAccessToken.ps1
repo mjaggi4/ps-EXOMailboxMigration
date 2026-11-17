@@ -51,7 +51,8 @@
         if (-not $Connection.AdminAccount) {
             throw "Cette opération nécessite la connexion de l'administrateur du tenant ($label). Lancez : Connect-EESTenant -Role $label -Repair"
         }
-        $client = $script:EESAdminClients[$Connection.TenantId]
+        $clientKey = if ($Connection.PSObject.Properties['AdminClientKey'] -and $Connection.AdminClientKey) { $Connection.AdminClientKey } else { "$($Connection.TenantId)|$($script:EESConstants.AdminClientId)" }
+        $client = $script:EESAdminClients[$clientKey]
         $requestedScopes = if ($Scopes) { $Scopes } else { $Connection.AdminScopes }
         try {
             $silent = $client.AcquireTokenSilent([string[]]$requestedScopes, $Connection.AdminAccount)
@@ -64,9 +65,10 @@
                 throw "Jeton administrateur indisponible ($label) : $($inner.Message)"
             }
             # Consentement ou authentification supplémentaire requis : nouvelle connexion interactive.
-            $admin = Connect-EESAdminAccount -TenantId $Connection.TenantId -Scopes $requestedScopes -LoginHint $Connection.AdminUpn
+            $clientId = $clientKey.Split('|')[1]
+            $admin = Connect-EESAdminAccount -TenantId $Connection.TenantId -Scopes $requestedScopes -LoginHint $Connection.AdminUpn -ClientId $clientId
             $Connection.AdminAccount = $admin.Account
-            $client = $script:EESAdminClients[$Connection.TenantId]
+            $client = $script:EESAdminClients[$admin.ClientKey]
             $result = $client.AcquireTokenSilent([string[]]$requestedScopes, $admin.Account).ExecuteAsync().GetAwaiter().GetResult()
         }
         return $result.AccessToken

@@ -10,7 +10,9 @@
     .PARAMETER ResourceAppId
         AppId de l'API (Microsoft Graph).
     .PARAMETER RoleId
-        Identifiants d'appRoles à garantir (type « Role »).
+        Identifiants de permissions à garantir (appRoles ou scopes délégués).
+    .PARAMETER Type
+        Role (permission applicative, défaut) ou Scope (permission déléguée).
     .OUTPUTS
         Objet { Changed, RequiredResourceAccess }.
     #>
@@ -25,7 +27,10 @@
         [string]$ResourceAppId,
 
         [Parameter(Mandatory)]
-        [string[]]$RoleId
+        [string[]]$RoleId,
+
+        [ValidateSet('Role', 'Scope')]
+        [string]$Type = 'Role'
     )
 
     $output = [System.Collections.Generic.List[object]]::new()
@@ -41,9 +46,9 @@
         if ($entry.resourceAppId -eq $ResourceAppId) {
             $found = $true
             foreach ($id in $RoleId) {
-                $present = $access | Where-Object { $_.id -eq $id -and $_.type -eq 'Role' }
+                $present = $access | Where-Object { $_.id -eq $id -and $_.type -eq $Type }
                 if (-not $present) {
-                    $access.Add([ordered]@{ id = $id; type = 'Role' })
+                    $access.Add([ordered]@{ id = $id; type = $Type })
                     $changed = $true
                 }
             }
@@ -52,7 +57,7 @@
     }
 
     if (-not $found) {
-        $access = foreach ($id in $RoleId) { [ordered]@{ id = $id; type = 'Role' } }
+        $access = foreach ($id in $RoleId) { [ordered]@{ id = $id; type = $Type } }
         $output.Add([ordered]@{ resourceAppId = $ResourceAppId; resourceAccess = @($access) })
         $changed = $true
     }

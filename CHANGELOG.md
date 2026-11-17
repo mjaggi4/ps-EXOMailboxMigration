@@ -4,6 +4,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté – étape 5 : export PST
+
+- `Export-EESMailboxToPst -Method EDiscovery` (défaut) : API Microsoft Purview eDiscovery en mode délégué (compatible Business Premium / E3, abonnement pay-as-you-go requis par Microsoft) : dossier, recherche limitée à la boîte, estimation, export PST, téléchargement avec reprise (`Range`), extraction ZIP.
+- Au premier usage, l'application `EES-MailboxMigration` devient client public avec les permissions déléguées `eDiscovery.ReadWrite.All` et `eDiscovery.Download.Read` (consentement administrateur par `oauth2PermissionGrants`) ; création du service principal MicrosoftPurviewEDiscovery si absent.
+- `-Method Outlook` : secours via Outlook classique (COM), copie dossier par dossier dans un PST Unicode.
+- Messages d'aide en cas d'erreur (rôle eDiscovery Manager, facturation pay-as-you-go, licence).
+
+### Corrigé
+
+- Import : régulation du débit pour respecter la limite Microsoft de 150 Mo / 5 min par boîte (erreur 429 `IncomingBytes`).
+
 ### Ajouté – étape 4 : rapports
 
 - `Get-EESMigrationStatus` : état de chaque paire de boîtes (terminée, en cours/interrompue, échec), éléments migrés (cumul), éléments en échec, dernière passe ; utilisable pendant une migration, sans connexion.

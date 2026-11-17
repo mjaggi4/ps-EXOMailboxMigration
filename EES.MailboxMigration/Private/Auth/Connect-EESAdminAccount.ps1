@@ -34,9 +34,9 @@
 
     Initialize-EESMsal
 
-    # Réutilise le client existant du tenant (et donc son cache de jetons) s'il existe.
-    $client = $script:EESAdminClients[$TenantId]
-    if (-not $client -or $client.AppConfig.ClientId -ne $ClientId) {
+    # Réutilise le client existant (tenant + application cliente) et donc son cache de jetons.
+    $client = $script:EESAdminClients["$TenantId|$ClientId"]
+    if (-not $client) {
         $authority = '{0}/{1}' -f $script:EESConstants.LoginBaseUrl, $TenantId
         $clientBuilder = [Microsoft.Identity.Client.PublicClientApplicationBuilder]::Create($ClientId)
         $clientBuilder = $clientBuilder.WithAuthority($authority)
@@ -64,8 +64,9 @@
     }
 
     $resolvedTenantId = $result.TenantId
-    $script:EESAdminClients[$resolvedTenantId] = $client
-    Write-EESLog -Message ("Administrateur connecté : {0} (tenant {1})" -f $result.Account.Username, $resolvedTenantId)
+    $clientKey = "$resolvedTenantId|$ClientId"
+    $script:EESAdminClients[$clientKey] = $client
+    Write-EESLog -Message ("Compte connecté : {0} (tenant {1})" -f $result.Account.Username, $resolvedTenantId)
 
     return [pscustomobject]@{
         TenantId          = $resolvedTenantId
@@ -73,5 +74,6 @@
         UserPrincipalName = $result.Account.Username
         Scopes            = $Scopes
         ClientId          = $ClientId
+        ClientKey         = $clientKey
     }
 }

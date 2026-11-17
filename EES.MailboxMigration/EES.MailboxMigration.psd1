@@ -27,6 +27,7 @@
         'New-EESBatchTemplate'
         'Get-EESMigrationStatus'
         'Export-EESMigrationReport'
+        'Export-EESMailboxToPst'
     )
     CmdletsToExport      = @()
     VariablesToExport    = @()

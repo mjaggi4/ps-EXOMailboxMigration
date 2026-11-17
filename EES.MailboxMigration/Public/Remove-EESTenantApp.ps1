@@ -93,6 +93,7 @@
         AdminAccount       = $admin.Account
         AdminUpn           = $admin.UserPrincipalName
         AdminScopes        = $adminScopes
+        AdminClientKey     = $admin.ClientKey
         ConfidentialClient = $null
     }
     $graph = @{ Connection = $adminConnection; Delegated = $true }
@@ -143,7 +144,7 @@
             $script:EESConnections.Remove($currentRole)
         }
     }
-    $script:EESAdminClients.Remove($config.TenantId)
+    Clear-EESAdminClient -TenantId $config.TenantId
 
     Write-EESMessage -Type Success -Message "Nettoyage terminé pour le tenant $($config.TenantName)."
 }

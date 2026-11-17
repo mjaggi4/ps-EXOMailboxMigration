@@ -43,17 +43,8 @@
 
         # Purge du cache du compte administrateur si plus aucun rôle n'utilise ce tenant.
         $stillUsed = $script:EESConnections.Values | Where-Object { $_.TenantId -eq $connection.TenantId }
-        if (-not $stillUsed -and $script:EESAdminClients.ContainsKey($connection.TenantId)) {
-            $client = $script:EESAdminClients[$connection.TenantId]
-            try {
-                foreach ($account in @($client.GetAccountsAsync().GetAwaiter().GetResult())) {
-                    $client.RemoveAsync($account).GetAwaiter().GetResult()
-                }
-            }
-            catch {
-                Write-EESLog -Level DEBUG -Message "Purge du cache MSAL : $($_.Exception.Message)"
-            }
-            $script:EESAdminClients.Remove($connection.TenantId)
+        if (-not $stillUsed) {
+            Clear-EESAdminClient -TenantId $connection.TenantId
         }
         Write-EESMessage -Message "Tenant $currentRole déconnecté ($($connection.TenantName))."
     }

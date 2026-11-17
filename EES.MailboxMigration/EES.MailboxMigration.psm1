@@ -14,6 +14,8 @@ $script:EESConstants = [ordered]@{
     # Client public Microsoft « Microsoft Graph Command Line Tools » utilisé pour la connexion
     # interactive de l'administrateur (redirection http://localhost).
     AdminClientId              = '14d82eec-204b-4c2f-b7e8-296a70dab67e'
+    # Application Microsoft « MicrosoftPurviewEDiscovery » (téléchargement des exports eDiscovery).
+    PurviewEDiscoveryAppId     = 'b26e684c-5068-4120-a679-64a5d2c909d9'
     GraphBaseUrl               = 'https://graph.microsoft.com'
     LoginBaseUrl               = 'https://login.microsoftonline.com'
     MinGraphAuthVersion        = [version]'2.25.0'
@@ -57,7 +59,8 @@ $displaySets = @{
     'EES.FolderPlan'      = @('SourcePath', 'TargetPath', 'Items', 'Status')
     'EES.MigrationStatus'         = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'ItemsMigrated', 'PendingFailures', 'LastRunStart', 'LastRunEnd', 'Runs')
     'EES.MigrationStatusDetailed' = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'ItemsMigrated', 'PendingFailures', 'LastRunStart', 'LastRunEnd', 'LastRunMode', 'LastRunCopied', 'LastRunFailed', 'LastRunDuration', 'LastRunMB', 'ThroughputMBPerHour', 'FolderCount', 'Folders', 'Failures', 'StatePath')
-    'EES.ReadinessResult' =@('SourceMailbox', 'TargetMailbox', 'Status', 'SourceSizeGB', 'SourceItemCount', 'TargetFreeGB', 'EstimatedDuration', 'Issues')
+    'EES.PstExportResult'         = @('Mailbox', 'Method', 'Status', 'SizeGB', 'ItemCount', 'Files', 'Duration', 'Message')
+    'EES.ReadinessResult'         = @('SourceMailbox', 'TargetMailbox', 'Status', 'SourceSizeGB', 'SourceItemCount', 'TargetFreeGB', 'EstimatedDuration', 'Issues')
 }
 foreach ($typeName in $displaySets.Keys) {
     Update-TypeData -TypeName $typeName -DefaultDisplayPropertySet $displaySets[$typeName] -Force

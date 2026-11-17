@@ -30,7 +30,14 @@ if (Test-Path -LiteralPath $installer) {
 }
 
 $findings = foreach ($target in $targets) {
-    Invoke-ScriptAnalyzer -Path $target -Recurse -Settings $settings
+    # PSScriptAnalyzer échoue parfois de façon aléatoire (erreur interne) : une nouvelle tentative.
+    try {
+        Invoke-ScriptAnalyzer -Path $target -Recurse -Settings $settings -ErrorAction Stop
+    }
+    catch {
+        Write-Warning -Message "PSScriptAnalyzer : erreur interne ($($_.Exception.Message)), nouvelle tentative."
+        Invoke-ScriptAnalyzer -Path $target -Recurse -Settings $settings -ErrorAction Stop
+    }
 }
 if ($findings) {
     $findings | Format-Table -Property RuleName, Severity, ScriptName, Line, Message -AutoSize -Wrap | Out-String -Width 200 | Write-Output

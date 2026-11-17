@@ -166,6 +166,7 @@
         AdminAccount          = $admin.Account
         AdminUpn              = $admin.UserPrincipalName
         AdminScopes           = $adminScopes
+        AdminClientKey        = $admin.ClientKey
         ConnectedAt           = Get-Date
     }
     $script:EESConnections[$Role] = $connection
