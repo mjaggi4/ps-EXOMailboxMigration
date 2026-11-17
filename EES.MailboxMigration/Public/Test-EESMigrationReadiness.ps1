@@ -147,5 +147,5 @@
     $warned = @($results | Where-Object Status -EQ 'Prêt avec avertissements').Count
     $blocked = @($results | Where-Object Status -EQ 'Bloquant').Count
     $type = if ($blocked) { 'Warning' } else { 'Success' }
-    Write-EESMessage -Type $type -Message "Pré-vérifications : $ready prête(s), $warned avec avertissements, $blocked bloquée(s). Détail : (résultat).Checks"
+    Write-EESMessage -Type $type -Message "Pré-vérifications : $ready prête(s), $warned avec avertissements, $blocked bloquée(s). Problèmes : propriété Issues ; tous les contrôles : propriété Checks."
 }

@@ -83,7 +83,8 @@
                 & $add 'Licence cible' 'OK' ("Exchange Online : {0}" -f ($license.Skus -join ', '))
             }
             else {
-                & $add 'Licence cible' 'Erreur' 'Aucune licence Exchange Online active sur la boîte cible.'
+                # Une boîte partagée n'a pas besoin de licence (jusqu'à 50 Go) : simple avertissement.
+                & $add 'Licence cible' 'Avertissement' 'Aucune licence Exchange Online : normal pour une boîte partagée (50 Go maximum sans licence), à corriger pour une boîte utilisateur.'
             }
         }
         catch {
@@ -174,6 +175,8 @@
 
     $errors = @($checks | Where-Object Status -EQ 'Erreur')
     $warnings = @($checks | Where-Object Status -EQ 'Avertissement')
+    # Résumé lisible des problèmes (erreurs d'abord), affiché par défaut.
+    $issues = @($errors + $warnings | ForEach-Object { '[{0}] {1} : {2}' -f $_.Status, $_.Check, $_.Detail })
     return [pscustomobject]@{
         PSTypeName        = 'EES.ReadinessResult'
         SourceMailbox     = $SourceMailbox
@@ -184,6 +187,7 @@
         SourceItemCount   = $sourceItems
         TargetFreeGB      = if ($null -ne $targetFree) { [math]::Round($targetFree / 1GB, 2) } else { $null }
         EstimatedDuration = $estimated
+        Issues            = [string[]]$issues
         Checks            = $checks.ToArray()
         Folders           = $folders
     }

@@ -224,13 +224,24 @@ Describe 'Test-EESMailboxPairReadiness' {
         ($result.Checks | Where-Object Check -EQ 'Quota cible').Status | Should -Be 'Erreur'
     }
 
-    It 'bloque si la boîte cible est introuvable ou sans licence Exchange' {
+    It 'ne bloque pas une cible sans licence (boîte partagée) mais l''affiche dans Issues' {
+        Mock -ModuleName EES.MailboxMigration Invoke-EESGraphRequest -ParameterFilter { $Uri -like '*/licenseDetails' } { @() }
+        $result = InModuleScope EES.MailboxMigration {
+            Test-EESMailboxPairReadiness -SourceMailbox 'a@contoso.com' -TargetMailbox 'partagee@fabrikam.com'
+        }
+        $result.Ready | Should -BeTrue
+        ($result.Checks | Where-Object Check -EQ 'Licence cible').Status | Should -Be 'Avertissement'
+        ($result.Issues -join ' ') | Should -Match 'boîte partagée'
+    }
+
+    It 'bloque si la boîte cible est introuvable' {
         Mock -ModuleName EES.MailboxMigration Resolve-EESMailbox -ParameterFilter { $Role -eq 'Target' } { throw 'Utilisateur introuvable dans le tenant Target' }
         $result = InModuleScope EES.MailboxMigration {
             Test-EESMailboxPairReadiness -SourceMailbox 'a@contoso.com' -TargetMailbox 'absent@fabrikam.com'
         }
         $result.Ready | Should -BeFalse
         ($result.Checks | Where-Object Check -EQ 'Boîte cible').Detail | Should -Match 'introuvable'
+        $result.Issues[0] | Should -Match '^\[Erreur\] Boîte cible'
     }
 
     It 'intègre les contrôles communs (permissions)' {
