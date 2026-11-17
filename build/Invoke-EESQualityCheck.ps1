@@ -39,6 +39,16 @@ $findings = foreach ($target in $targets) {
         Invoke-ScriptAnalyzer -Path $target -Recurse -Settings $settings -ErrorAction Stop
     }
 }
+# L'installeur doit aussi rester compatible avec Windows PowerShell 5.1.
+if (Test-Path -LiteralPath $installer) {
+    $compatibility = @{
+        IncludeRules = @('PSUseCompatibleSyntax')
+        Rules        = @{ PSUseCompatibleSyntax = @{ Enable = $true; TargetVersions = @('5.1', '7.4') } }
+    }
+    $findings = @($findings) + @(Invoke-ScriptAnalyzer -Path $installer -Settings $compatibility)
+    $findings = @($findings | Where-Object { $_ })
+}
+
 if ($findings) {
     $findings | Format-Table -Property RuleName, Severity, ScriptName, Line, Message -AutoSize -Wrap | Out-String -Width 200 | Write-Output
     throw "PSScriptAnalyzer : $(@($findings).Count) problème(s) détecté(s)."

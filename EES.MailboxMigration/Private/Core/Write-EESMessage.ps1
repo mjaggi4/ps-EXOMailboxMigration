@@ -12,7 +12,7 @@
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [AllowEmptyString()]
         [string]$Message,
 
@@ -20,19 +20,21 @@
         [string]$Type = 'Info'
     )
 
-    $color = switch ($Type) {
-        'Success' { [System.ConsoleColor]::Green }
-        'Warning' { [System.ConsoleColor]::Yellow }
-        'Title' { [System.ConsoleColor]::Cyan }
-        default { [System.ConsoleColor]::Gray }
-    }
+    process {
+        $color = switch ($Type) {
+            'Success' { [System.ConsoleColor]::Green }
+            'Warning' { [System.ConsoleColor]::Yellow }
+            'Title' { [System.ConsoleColor]::Cyan }
+            default { [System.ConsoleColor]::Gray }
+        }
 
-    if ($Host -and $Host.UI) {
-        $Host.UI.WriteLine($color, $Host.UI.RawUI.BackgroundColor, $Message)
-    }
-    if ($Message) {
-        $level = if ($Type -eq 'Warning') { 'WARN' } else { 'INFO' }
-        # Pas de double affichage : on écrit seulement dans le fichier log.
-        Write-EESLog -Level $level -Message $Message -WarningAction SilentlyContinue -Verbose:$false
+        if ($Host -and $Host.UI) {
+            $Host.UI.WriteLine($color, $Host.UI.RawUI.BackgroundColor, $Message)
+        }
+        if ($Message) {
+            $level = if ($Type -eq 'Warning') { 'WARN' } else { 'INFO' }
+            # Pas de double affichage : on écrit seulement dans le fichier log.
+            Write-EESLog -Level $level -Message $Message -WarningAction SilentlyContinue -Verbose:$false
+        }
     }
 }

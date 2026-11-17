@@ -4,6 +4,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté – étape 7 : menu, installeur et documentation
+
+- `Start-EESMigrationMenu` : menu interactif en français (connexions, pré-vérifications, migration unitaire et en lot, passe incrémentale, suivi et rapports, export et import PST, fin de projet) ; les erreurs s'affichent sans quitter le menu.
+- `Install-EESMailboxMigration.ps1` (compatible Windows PowerShell 5.1) : installation de PowerShell 7 par winget et relance, stratégie d'exécution, `Unblock-File`, modules requis en `CurrentUser` avec versions minimales, copie du module, AzCopy à la demande.
+- Guide administrateur en français (`docs/guide-administrateur.md`) : prérequis, licences et coûts, permissions, pas-à-pas, bascule MX (alias X500), limites, dépannage.
+- Contrôle de compatibilité Windows PowerShell 5.1 de l'installeur dans l'intégration continue.
+
 ### Ajouté – étape 6 : import PST
 
 - `Import-EESPstToMailbox -Method NetworkUpload` (défaut) : contrôle des PST (noms uniques, taille), URL SAS du portail Purview (saisie masquée, jamais journalisée, validée), AzCopy téléchargé à la demande (signature Microsoft vérifiée), téléversement dans un sous-dossier daté, fichier de mappage CSV au format exact Purview (500 lignes max par fichier), étapes restantes affichées. Options `-TargetRootFolder`, `-IsArchive`, `-MappingOnly`, `-WhatIf`.
