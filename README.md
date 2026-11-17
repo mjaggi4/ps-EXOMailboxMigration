@@ -7,7 +7,7 @@ Module PowerShell pour migrer des boîtes aux lettres Exchange Online :
 3. **Export d'une boîte vers un fichier PST.**
 4. **Import d'un fichier PST vers une boîte.**
 
-> 🚧 Développement en cours. Seule l'étape 1 (connexion aux tenants et création de l'application) est disponible. Voir [CHANGELOG.md](CHANGELOG.md).
+> 🚧 Développement en cours : connexion aux tenants et migration unitaire disponibles. Voir [CHANGELOG.md](CHANGELOG.md).
 
 ## Technologies utilisées
 
@@ -40,6 +40,13 @@ Connect-EESTenant -Role Source
 Connect-EESTenant -Role Target -TenantId fabrikam.onmicrosoft.com
 
 Get-EESConnectionStatus
+
+# Plan de correspondance des dossiers, sans rien copier
+Start-EESMailboxMigration jdupont@contoso.com jean.dupont@fabrikam.com -WhatIf
+
+# Copie (relançable sans doublon), puis passe finale avant la bascule MX
+Start-EESMailboxMigration jdupont@contoso.com jean.dupont@fabrikam.com
+Start-EESMailboxMigration jdupont@contoso.com jean.dupont@fabrikam.com -Incremental
 
 # En fin de projet
 Remove-EESTenantApp -Role Source

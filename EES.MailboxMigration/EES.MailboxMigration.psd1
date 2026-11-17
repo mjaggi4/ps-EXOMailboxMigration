@@ -21,6 +21,7 @@
         'Disconnect-EESTenant'
         'Get-EESConnectionStatus'
         'Remove-EESTenantApp'
+        'Start-EESMailboxMigration'
     )
     CmdletsToExport      = @()
     VariablesToExport    = @()

@@ -28,6 +28,10 @@ $script:EESConnections = @{}
 $script:EESAdminClients = @{}
 # Fichier de log de la session courante (créé à la première écriture).
 $script:EESLogFile = $null
+# Sessions d'import (importUrl pré-authentifiées) par boîte cible.
+$script:EESImportSessions = @{}
+# Client HTTP partagé (imports concurrents).
+$script:EESHttpClient = $null
 
 foreach ($folder in @('Private', 'Public')) {
     $path = Join-Path -Path $PSScriptRoot -ChildPath $folder
@@ -36,6 +40,15 @@ foreach ($folder in @('Private', 'Public')) {
             . $_.FullName
         }
     }
+}
+
+# Affichage par défaut des objets retournés.
+$displaySets = @{
+    'EES.MigrationResult' = @('SourceMailbox', 'TargetMailbox', 'IsArchive', 'Status', 'Copied', 'Updated', 'Skipped', 'Failed', 'Duration')
+    'EES.FolderPlan'      = @('SourcePath', 'TargetPath', 'Items', 'Status')
+}
+foreach ($typeName in $displaySets.Keys) {
+    Update-TypeData -TypeName $typeName -DefaultDisplayPropertySet $displaySets[$typeName] -Force
 }
 
 # Vérification non bloquante au chargement : affiche des avertissements clairs.

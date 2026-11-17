@@ -4,6 +4,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté – étape 2 : migration unitaire
+
+- `Start-EESMailboxMigration` : copie inter-tenant boîte → boîte existante via les API Microsoft Graph mailbox import/export (flux FastTransfer opaque, jamais analysé).
+- Correspondance des dossiers well-known indépendante de la langue (`wellKnownName`), recréation des dossiers personnels par chemin, option `-TargetRootFolder`.
+- Filtres `-StartDate`, `-EndDate` (sur `createdDateTime`), `-IncludeFolders`, `-ExcludeFolders` (noms affichés ou canoniques, jokers). Dossiers système toujours exclus.
+- Reprise et incrémental : état par paire de boîtes (`State/`), journal des éléments en ajout seul, jetons delta par dossier, `-Incremental`, `-Rescan`. Relance automatique des éléments en échec.
+- Export en `$batch` (4 × 20 éléments, taille de lot limitée), import concurrent (4 requêtes simultanées par boîte), renouvellement de la session d'import, gestion des redirections d'archive auxiliaire (308/`ErrorArchiveFolderMovedPermanently`/409).
+- `-BadItemLimit`, barre de progression, résultat détaillé par dossier (`last-run.json`, `runs.jsonl`).
+- `-IncludeArchive` (expérimental) : identifiant d'archive lu via `settings/exchange` en beta, opérations en v1.0 avec repli beta.
+- `-WhatIf` affiche le plan de correspondance des dossiers.
+
 ### Ajouté – étape 1 : authentification et application d'entreprise
 
 - Squelette du module `EES.MailboxMigration` (PowerShell 7.4 minimum, une fonction par fichier).
