@@ -1,8 +1,9 @@
-# Données d'exécution (ne jamais versionner)
-Logs/
-State/
-Reports/
-Tools/
+# Données d'exécution (ne jamais versionner). Règles ancrées à la racine (« / ») : sans cela,
+# « State/ » ignorerait aussi le code source EES.MailboxMigration/Private/State/.
+/Logs/
+/State/
+/Reports/
+/Tools/
 *.pst
 *.log
 tenants.json
