@@ -1,0 +1,24 @@
+# Données d'exécution (ne jamais versionner)
+Logs/
+State/
+Reports/
+Tools/
+*.pst
+*.log
+tenants.json
+*.tmp
+
+# Certificats exportés éventuels
+*.pfx
+*.cer
+
+# Résultats de tests
+TestResults/
+testResults.xml
+coverage.xml
+
+# Divers
+.vs/
+*.swp
+Thumbs.db
+.DS_Store
